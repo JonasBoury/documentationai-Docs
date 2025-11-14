@@ -1,0 +1,118 @@
+---
+title: Introduction
+description: Overview of Citizen Pay and its core capabilities for payment processing
+---
+
+## Getting Started
+
+Citizen Pay provides a robust payment infrastructure that supports traditional currencies, stablecoins, and Web3 tokens. You integrate it to accept payments globally with low fees and instant settlements. This enables businesses to streamline financial transactions securely.
+
+<Columns cols={3}>
+  <Card title="Global Reach" icon="globe" href="#">
+    Accept payments from anywhere using multiple currency options including fiat and crypto.
+  </Card>
+  <Card title="Low Fees" icon="dollar-sign" href="#">
+    Benefit from competitive pricing that reduces costs compared to traditional processors.
+  </Card>
+  <Card title="Instant Settlement" icon="zap" href="#">
+    Receive funds immediately without waiting for batch processing.
+  </Card>
+</Columns>
+
+## Key Features
+
+You start by setting up your account and obtaining API keys. Citizen Pay handles authentication via secure tokens, ensuring all transactions are protected. Explore the integration guide for step-by-step setup.
+
+<Callout kind="info">
+  Ensure you have a verified business account before integrating.
+</Callout>
+
+<Tabs>
+  <Tab title="Quick Setup" icon="rocket">
+    Begin with basic configuration.
+    
+````bash
+npm install citizen-pay-sdk
+````
+
+    Initialize the SDK with your API key.
+    
+````javascript
+import { CitizenPay } from 'citizen-pay-sdk';
+
+const client = new CitizenPay({ apiKey: 'your-api-key' });
+````
+  </Tab>
+  <Tab title="Supported Currencies" icon="credit-card">
+    Citizen Pay supports USD, EUR, USDC, and ETH.
+    
+| Currency | Type | Settlement Time |
+|----------|------|-----------------|
+| USD      | Fiat | Instant         |
+| USDC     | Stablecoin | Instant |
+| ETH      | Web3  | <1 min          |
+  </Tab>
+</Tabs>
+
+<Steps>
+  <Step title="Create Account" icon="user">
+    Sign up on the Citizen Pay dashboard and verify your identity.
+  </Step>
+  <Step title="Generate Keys" icon="key">
+    Navigate to settings and create an API key for your application. Store it securely.
+  </Step>
+  <Step title="Test Integration" icon="play">
+    Use the sandbox environment to simulate payments before going live.
+    
+````javascript
+const payment = await client.payments.create({
+  amount: 100.00,
+  currency: 'USD',
+  recipient: 'user123'
+});
+console.log(`Payment ID: ${payment.id}`);
+````
+  </Step>
+</Steps>
+
+<Expandable title="What Makes Citizen Pay Unique?" default-open="false">
+  Unlike traditional providers, Citizen Pay bridges fiat and crypto worlds. You process payments in a unified API, reducing complexity. This setup supports high-volume transactions with minimal latency.
+</Expandable>
+
+## Use Cases
+
+Businesses use Citizen Pay for e-commerce, freelancing platforms, and DeFi applications. For example, an online store accepts ETH alongside credit cards seamlessly. The API returns real-time status updates for all transactions.
+
+<CodeGroup tabs="JavaScript,Python">
+  ```javascript
+const result = await client.payments.retrieve('pay_123');
+if (result.status === 'settled') {
+  // Fulfill order
+}
+```
+  ```python
+import citizenpay
+
+client = citizenpay.Client(api_key='your-api-key')
+result = client.payments.retrieve('pay_123')
+if result.status == 'settled':
+    # Fulfill order
+```
+</CodeGroup>
+
+You monitor transactions via webhooks for events like settlements. This ensures you stay updated without polling. Citizen Pay's documentation covers advanced topics like error handling and compliance.
+
+## Best Practices
+
+Always validate inputs before sending requests. Use environment variables for API keys to enhance security. Test thoroughly in sandbox mode to avoid production issues.
+
+````mermaid
+graph LR
+    A[User Initiates Payment] --> B[API Call to Citizen Pay]
+    B --> C[Process Transaction]
+    C --> D[Instant Settlement]
+    D --> E[Webhook Notification]
+    E --> F[Update Status]
+````
+
+This flow demonstrates the efficiency of Citizen Pay. You achieve faster processing times, improving customer satisfaction.

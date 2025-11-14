@@ -1,0 +1,199 @@
+---
+title: Integration
+description: Step-by-step guide to integrating Citizen Pay into your application
+---
+
+## Overview
+
+You integrate Citizen Pay by installing the SDK and configuring authentication. This process connects your app to the payment infrastructure for handling transactions. The integration supports both frontend and backend implementations for seamless user experience.
+
+<Columns cols={2}>
+  <Card title="SDK Installation" icon="package" href="#">
+    Quick setup with npm or pip.
+  </Card>
+  <Card title="API Endpoints" icon="api" href="#">
+    RESTful interface for all operations.
+  </Card>
+</Columns>
+
+<Callout kind="success">
+  The SDK handles retries and error mapping automatically.
+</Callout>
+
+## Installation
+
+Choose your language and install the official SDK. This provides helper methods for common tasks like creating payments.
+
+<Tabs>
+  <Tab title="JavaScript" icon="code">
+    <Steps>
+      <Step title="Install Package" icon="download">
+        Run the installation command in your project directory.
+        
+````bash
+npm install citizen-pay-sdk
+````
+      </Step>
+      <Step title="Import and Initialize" icon="settings">
+        Import the module and create a client instance.
+        
+````javascript
+import { CitizenPay } from 'citizen-pay-sdk';
+
+const client = new CitizenPay({
+  apiKey: process.env.API_KEY,
+  environment: 'sandbox' // or 'production'
+});
+````
+      </Step>
+      <Step title="Test Connection" icon="check">
+        Make a simple API call to verify setup. Expect a successful response if configured correctly.
+        
+````javascript
+const { data } = await client.get('/health');
+console.log(data.status); // 'healthy'
+````
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Python" icon="python">
+    <Steps>
+      <Step title="Install Package" icon="download">
+        Use pip to add the SDK.
+        
+````bash
+pip install citizen-pay
+````
+      </Step>
+      <Step title="Initialize Client" icon="settings">
+        Create the client with your credentials.
+        
+````python
+from citizenpay import Client
+
+client = Client(
+    api_key='your-api-key',
+    environment='sandbox'
+)
+````
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Basic Payment Flow
+
+You initiate payments by calling the create endpoint with amount and currency details. The system processes and returns a payment ID for tracking.
+
+<CodeGroup tabs="Create Payment,Retrieve Payment">
+  ```javascript
+// Create
+await client.payments.create({
+  amount: 50.00,
+  currency: 'USD',
+  description: 'Order #123',
+  metadata: { orderId: 'ORD-123' }
+});
+```
+  ```javascript
+// Retrieve
+const payment = await client.payments.retrieve('pay_abc123');
+console.log(payment.status); // 'pending' or 'settled'
+```
+</CodeGroup>
+
+## Webhook Setup
+
+Configure webhooks to receive real-time notifications. You specify a URL endpoint in your dashboard that Citizen Pay calls on events like payment success.
+
+````javascript
+// Example webhook handler
+app.post('/webhook', (req, res) => {
+  const event = req.body;
+  if (event.type === 'payment.settled') {
+    // Update order status
+    fulfillOrder(event.data.paymentId);
+  }
+  res.status(200).send('OK');
+});
+````
+
+<Expandable title="Handling Webhook Signatures" default-open="false">
+  Verify signatures to ensure requests come from Citizen Pay. Use the shared secret from your dashboard.
+  
+````javascript
+const crypto = require('crypto');
+const signature = req.headers['citizen-pay-signature'];
+const computed = crypto.createHmac('sha256', webhookSecret).update(JSON.stringify(req.body)).digest('hex');
+if (signature !== computed) {
+  throw new Error('Invalid signature');
+}
+````
+</Expandable>
+
+## Error Handling
+
+Implement robust error handling for scenarios like insufficient funds or network issues. The API returns structured errors with codes.
+
+| Error Code | Description | Action |
+|------------|-------------|--------|
+| 400        | Bad Request | Validate inputs |
+| 402        | Payment Declined | Retry or notify user |
+| 500        | Server Error | Log and retry |
+
+<Callout kind="alert">
+  Always check `response.error.code` for specific handling.
+</Callout>
+
+````javascript
+try {
+  const payment = await client.payments.create(params);
+} catch (error) {
+  if (error.code === 'insufficient_funds') {
+    // Handle gracefully
+    console.log('User needs to top up wallet');
+  }
+}
+````
+
+## Testing Integration
+
+Use the sandbox environment to simulate transactions. Create test payments with mock data to verify your flow.
+
+````mermaid
+sequenceDiagram
+    participant U as User
+    participant A as Your App
+    participant C as Citizen Pay
+    U->>A: Initiate Payment
+    A->>C: Create Payment Request
+    C->>A: Payment ID
+    A->>U: Payment Link
+    Note over U,C: User Completes Payment
+    C->>A: Webhook (Settled)
+    A->>U: Confirmation
+````
+
+This sequence ensures end-to-end testing. You monitor logs for any discrepancies.
+
+## Advanced Configuration
+
+Customize timeouts and retry policies in the SDK options. For high-traffic apps, implement queuing for webhook processing.
+
+<Steps>
+  <Step title="Set Timeouts" icon="clock">
+    Configure request timeouts to 30 seconds.
+    
+````javascript
+new CitizenPay({
+  // ...
+  timeout: 30000
+});
+````
+  </Step>
+  <Step title="Retry Logic" icon="refresh-cw">
+    Enable automatic retries for transient errors.
+  </Step>
+</Steps>
+
+Your integration is now ready for production. Monitor performance and scale as needed with Citizen Pay's infrastructure.

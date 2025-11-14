@@ -1,0 +1,54 @@
+---
+title: Changelog
+description: Release history and updates for Citizen Pay
+---
+
+## Release History
+
+<Update label="2024-10-15" description="v2.1.0" tags={["feature", "improvement"]}>
+
+## New Features
+
+- Added support for DAI stablecoin in payment processing. You now accept DAI alongside USDC for seamless stablecoin transactions.
+- Introduced volume-based fee tiers for high-traffic merchants. Eligible users see reduced rates starting at 0.3% for over 1,000 monthly transactions.
+
+## Improvements
+
+- Enhanced webhook delivery with retry logic up to 5 attempts. This reduces missed notifications during temporary outages.
+- Optimized API response times by 20% through caching mechanisms. Retrieval calls now average under 100ms.
+
+## Bug Fixes
+
+- Fixed intermittent 500 errors on large metadata payloads. You can now include up to 10KB without issues. 
+- Resolved currency conversion discrepancies for EUR to USD pairs. Rates now align with real-time market data.
+
+</Update>
+
+<Update label="2024-09-20" description="v2.0.0" tags={["feature", "breaking"]}>
+
+## New Features
+
+- Launched Web3 token support including ETH and BTC. Integrate crypto payments with the same API endpoints as fiat.
+- Added dashboard analytics for transaction trends. View charts for volume, fees, and settlement times directly.
+
+## Breaking Changes
+
+- Updated authentication to require scoped API keys. Legacy global keys deprecated; migrate by regenerating with specific permissions.
+- Changed default pagination limit from 50 to 20 for list endpoints. Adjust `limit` parameter to maintain previous behavior.
+
+## Improvements
+
+- Improved error messages with actionable codes. For example, `INSUFFICIENT_BALANCE` now includes expected minimum.
+
+</Update>
+
+<Update label="2024-08-10" description="v1.0.0" tags={["feature"]}>
+
+## Initial Release
+
+- Core payment creation and retrieval APIs available. Process USD and EUR with instant settlements.
+- SDKs for JavaScript and Python released. Includes methods for authentication and basic operations.
+- Webhook system for real-time event notifications. Subscribe to `payment.settled` and `payment.failed` events.
+- Sandbox environment for testing. Use test keys to simulate transactions without real funds.
+
+</Update>

@@ -1,0 +1,162 @@
+openapi: '3.0.0'
+info:
+  version: 1.0.0
+  title: Citizen Pay API
+  license:
+    name: MIT
+servers:
+  - url: https://api.citizenpay.com/v1
+paths:
+  /payments:
+    get:
+      summary: List all payments
+      operationId: listPayments
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A paged array of payments
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payments'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a payment
+      operationId: createPayments
+      responses:
+        '201':
+          description: Payment created successfully. Returns the payment ID and initial status for tracking the transaction through processing and settlement.
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /payments/{paymentId}:
+    get:
+      summary: Info for a specific payment
+      operationId: showPaymentById
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          description: The id of the payment to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request. Includes full details such as status, amount, fees, and settlement information for the specified payment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /currencies:
+    get:
+      summary: List supported currencies
+      operationId: listCurrencies
+      parameters:
+        - name: type
+          in: query
+          description: Filter by currency type (fiat, stablecoin, web3)
+          required: false
+          schema:
+            type: string
+            enum: [fiat, stablecoin, web3]
+      responses:
+        '200':
+          description: Array of available currencies with details on settlement times and supported regions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Currencies'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Enable a currency
+      operationId: enableCurrency
+      responses:
+        '201':
+          description: Currency enabled for your account. Allows processing payments in the specified currency with updated capabilities.
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Payment:
+      required:
+        - id
+        - amount
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, settled, failed]
+        fees:
+          type: number
+          format: double
+    Payments:
+      type: array
+      items:
+        $ref: '#/components/schemas/Payment'
+    Currency:
+      required:
+        - code
+        - type
+      properties:
+        code:
+          type: string
+        type:
+          type: string
+          enum: [fiat, stablecoin, web3]
+        settlementTime:
+          type: string
+    Currencies:
+      type: array
+      items:
+        $ref: '#/components/schemas/Currency'
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

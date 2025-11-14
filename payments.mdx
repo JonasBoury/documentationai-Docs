@@ -1,0 +1,180 @@
+---
+title: Payments
+description: Managing payment creation, processing, and retrieval in Citizen Pay
+---
+
+## Overview
+
+You create and manage payments using the Payments API. This allows processing of fiat, stablecoins, and Web3 tokens with instant settlements. Track status from initiation to completion for full visibility.
+
+<Callout kind="info">
+  All payments require valid authentication and sufficient user balance.
+</Callout>
+
+<Columns cols={3}>
+  <Card title="Create Payment" icon="plus" href="#">
+    Initiate new transactions quickly.
+  </Card>
+  <Card title="Retrieve Payment" icon="search" href="#">
+    Get details for any payment ID.
+  </Card>
+  <Card title="List Payments" icon="list" href="#">
+    Paginate through transaction history.
+  </Card>
+</Columns>
+
+## Creating Payments
+
+Submit a create request with amount, currency, and recipient details. The API validates and processes immediately, returning a unique ID.
+
+<Tabs>
+  <Tab title="JavaScript Example" icon="code">
+    Use the SDK for simplified calls.
+    
+````javascript
+const payment = await client.payments.create({
+  amount: 25.50,
+  currency: 'USDC',
+  recipientId: 'user_456',
+  description: 'Subscription fee',
+  metadata: {
+    invoiceId: 'INV-789',
+    customerEmail: 'user@example.com'
+  }
+});
+console.log(`Created payment: ${payment.id}`);
+````
+  </Tab>
+  <Tab title="cURL Example" icon="terminal">
+    Direct API call for testing.
+    
+````bash
+curl -X POST https://api.citizenpay.com/v1/payments \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 25.50,
+    "currency": "USDC",
+    "recipientId": "user_456",
+    "description": "Subscription fee"
+  }'
+````
+  </Tab>
+</Tabs>
+
+## Retrieving Payments
+
+Fetch details using the payment ID. This includes status, amount settled, and fees applied.
+
+<CodeGroup tabs="Success,Error Handling">
+  ```javascript
+try {
+  const payment = await client.payments.retrieve('pay_xyz789');
+  if (payment.status === 'settled') {
+    // Process fulfillment
+    console.log(`Amount settled: ${payment.amountSettled}`);
+  }
+} catch (error) {
+  console.error('Payment not found:', error.message);
+}
+```
+  ```javascript
+// Handle 404
+const payment = await client.payments.retrieve('invalid_id');
+// Throws error with code 404
+```
+</CodeGroup>
+
+## Listing Payments
+
+Retrieve a paginated list filtered by date or status. Use query parameters for customization.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| limit     | integer | Max results per page (`<=100`) |
+| status    | string | Filter by `pending`, `settled`, `failed` |
+| startDate | string | ISO date for range start |
+
+````javascript
+const { data: payments, nextPage } = await client.payments.list({
+  limit: 10,
+  status: 'settled',
+  startDate: '2024-01-01T00:00:00Z'
+});
+
+// Paginate if nextPage exists
+if (nextPage) {
+  const more = await client.payments.list({ page: nextPage });
+}
+````
+
+<ExpandableGroup>
+  <Expandable title="Supported Currencies for Payments" default-open="true">
+    Process USD, EUR, USDC, DAI, ETH, and BTC. Each has specific settlement rules; fiat settles instantly, crypto within blocks.
+  </Expandable>
+  <Expandable title="Refunds Process">
+    Issue refunds via the refund endpoint. Specify partial or full amounts.
+    
+````javascript
+await client.payments.refund('pay_xyz789', {
+  amount: 10.00,
+  reason: 'Customer request'
+});
+````
+  </Expandable>
+</ExpandableGroup>
+
+## Status Transitions
+
+Payments move through states: `pending` → `processing` → `settled` or `failed`. You receive webhooks for each change.
+
+````mermaid
+graph TD
+    A[Pending] --> B[Processing]
+    B --> C[Settled]
+    B --> D[Failed]
+    C --> E[Refunded]
+    style A fill:#f9f
+    style C fill:#9f9
+    style D fill:#f99
+````
+
+Monitor via polling or webhooks for real-time updates.
+
+<Steps>
+  <Step title="Validate Input" icon="check-circle">
+    Ensure amount > 0 and currency is supported.
+  </Step>
+  <Step title="Handle Response" icon="response">
+    Store the payment ID for reference.
+  </Step>
+  <Step title="Confirm Settlement" icon="zap">
+    Wait for webhook or poll status until `settled`.
+    
+````javascript
+// Poll example
+const pollPayment = async (id) => {
+  const payment = await client.payments.retrieve(id);
+  if (payment.status !== 'settled') {
+    setTimeout(() => pollPayment(id), 5000);
+  }
+};
+````
+  </Step>
+</Steps>
+
+## Fees and Settlements
+
+Citizen Pay charges a flat 0.5% fee deducted at settlement. Funds arrive in your designated wallet instantly for all types.
+
+<Callout kind="tip">
+  Review fee structure in dashboard for volume discounts.
+</Callout>
+
+You calculate net amount as `amount - fees`. Metadata helps track for accounting.
+
+## Troubleshooting Payments
+
+If a payment fails, check the error code. Common issues: invalid recipient or insufficient balance. Retry idempotently using the original ID.
+
+This covers core payment management. Integrate with your order system for automated workflows.
