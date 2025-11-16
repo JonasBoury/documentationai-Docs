@@ -1,0 +1,83 @@
+---
+title: ERC20 Treasury Sync
+description: Synchronize incoming and outgoing operations from various sources against a treasury token
+---
+
+## Intro
+
+As a business who has a treasury token, you should be able to synchronize incoming/outgoing operations from various sources against your token.
+
+There can be many businesses with many tokens.
+
+## Treasuries
+
+A treasury = 🏢 business + 🪙 token.
+
+## Providers
+
+### Stripe
+
+Used in all web based interfaces for the checkout flow. The user can either checkout instantly (and the merchant is immediately credited) or they can top up their own account (and transfer to the merchant from their balance).
+
+### Viva
+
+Used whenever a merchant needs to be able to accept traditional card payments (visa, mastercard, apply pay, google pay, bancontact, etc...).
+
+### Ponto
+
+Used to synchronize bank account transactions. A user can transfer funds directly to the treasury and mention their account id. The funds are then matched and minted to the user's account.
+
+## Strategies
+
+### 🚀 PAYG
+
+Pay as you go. Any amount received is immediately minted to the user.
+
+For example: As soon as you receive €10, mint 10 tokens to the corresponding account.
+
+### ⏱️ Periodic
+
+For each user account, look for an accumulated amount over a period of time. Mint only once during a period once a target is reached.
+
+For example: Every month, on the 15th, check if at least €150 were received from a specific account since the last sync. If the target was reached, mint 150 tokens to the corresponding account.
+
+## Matching
+
+Incoming transactions can be matched against an account address so that a token gets minted to the relevant account.
+
+### 🦾 Automatic
+
+When initiated by a user through the order system, we can attach the user's account address to the operation and mint tokens directly to them.
+
+Used for:
+
+* Stripe
+* Viva
+
+### 💪 Semi-automatic
+
+You can assign an identifier to an account address which will then be used to identify an account from a message sent along with a bank transfer.
+
+Used for:
+
+* Ponto
+
+## Refunds
+
+A refund is just a reverse operation where we mention from which account we are going to burn.
+
+## Operations
+
+An operation is a record of an in-flow or out-flow of treasury.
+
+States:
+
+* `requesting` - an operation being prepared for processing (the user is preparing to submit a bank transfer and we do not have the transaction yet)
+* `pending` - an operation is waiting to be processed
+* `pending-periodic` - an operation is waiting for the periodic amount + target check
+* `confirming` - the operation was processed and is now awaiting confirmation on the blockchain
+* `processed` - the operation was fully processed
+* `processed-account-not-found` - the operation was fully processed but was not matched to a user account
+
+An operation can complete an order if an order id was attached to it.
+

@@ -1,0 +1,40 @@
+---
+title: Order Transfer Protocol
+description: Protocol for transferring orders and managing order-based transactions
+---
+
+## Overview
+
+The Order Transfer Protocol enables seamless transfer of orders between parties and integration with payment systems. This protocol works in conjunction with the ERC20 Treasury Sync to provide a complete order and payment management solution.
+
+## Key Concepts
+
+The Order Transfer Protocol handles the lifecycle of orders from creation through completion, ensuring that payments and transfers are properly synchronized with treasury operations.
+
+## Integration with Treasury Sync
+
+Orders can be completed through operations in the ERC20 Treasury Sync system. When an operation is processed with an attached order ID, it automatically completes the corresponding order.
+
+<Callout kind="info">
+  Operations in the treasury sync system can complete orders when an order ID is attached to them.
+</Callout>
+
+## Order States
+
+Orders progress through various states during their lifecycle:
+
+* `pending` - Order has been created and is awaiting processing
+* `processing` - Order is being processed
+* `completed` - Order has been successfully completed
+* `failed` - Order processing failed
+* `cancelled` - Order was cancelled
+
+## Use Cases
+
+The Order Transfer Protocol supports various use cases including:
+
+* E-commerce order fulfillment
+* Subscription management
+* Marketplace transactions
+* Cross-platform order transfers
+

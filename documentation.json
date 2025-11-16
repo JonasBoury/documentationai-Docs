@@ -50,6 +50,16 @@
                 "title": "Payments",
                 "path": "payments",
                 "icon": "credit-card"
+              },
+              {
+                "title": "Order Transfer Protocol",
+                "path": "order-transfer-protocol",
+                "icon": "shuffle"
+              },
+              {
+                "title": "ERC20 Treasury Sync",
+                "path": "erc20-treasury-sync",
+                "icon": "refresh-cw"
               }
             ]
           }
