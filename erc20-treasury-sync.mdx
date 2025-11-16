@@ -1,13 +1,18 @@
 ---
 title: ERC20 Treasury Sync
-description: Synchronize incoming and outgoing operations from various sources against a treasury token
+description: >-
+  Synchronize incoming and outgoing operations from various sources against a
+  treasury token
 ---
-
 ## Intro
 
 As a business who has a treasury token, you should be able to synchronize incoming/outgoing operations from various sources against your token.
 
 There can be many businesses with many tokens.
+
+
+
+<Image uid="3924e38b-4c2a-4eed-bf56-297e88a615a3" src="https://blob-cdn.documentation.ai/org-f9a33560-cb9b-4d66-b66c-511f736111a4/doc-b72060e3-2226-4e90-913e-c19fe16e0465/1763326283512-nf93zip82vp-ERC20-Treasury-Sync-Image.png" width="1024" height="1536" alt="" />
 
 ## Treasuries
 
@@ -51,8 +56,9 @@ When initiated by a user through the order system, we can attach the user's acco
 
 Used for:
 
-* Stripe
-* Viva
+- Stripe
+
+- Viva
 
 ### 💪 Semi-automatic
 
@@ -60,7 +66,7 @@ You can assign an identifier to an account address which will then be used to id
 
 Used for:
 
-* Ponto
+- Ponto
 
 ## Refunds
 
@@ -72,12 +78,16 @@ An operation is a record of an in-flow or out-flow of treasury.
 
 States:
 
-* `requesting` - an operation being prepared for processing (the user is preparing to submit a bank transfer and we do not have the transaction yet)
-* `pending` - an operation is waiting to be processed
-* `pending-periodic` - an operation is waiting for the periodic amount + target check
-* `confirming` - the operation was processed and is now awaiting confirmation on the blockchain
-* `processed` - the operation was fully processed
-* `processed-account-not-found` - the operation was fully processed but was not matched to a user account
+- `requesting` - an operation being prepared for processing (the user is preparing to submit a bank transfer and we do not have the transaction yet)
+
+- `pending` - an operation is waiting to be processed
+
+- `pending-periodic` - an operation is waiting for the periodic amount + target check
+
+- `confirming` - the operation was processed and is now awaiting confirmation on the blockchain
+
+- `processed` - the operation was fully processed
+
+- `processed-account-not-found` - the operation was fully processed but was not matched to a user account
 
 An operation can complete an order if an order id was attached to it.
-
